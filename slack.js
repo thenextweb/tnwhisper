@@ -49,15 +49,41 @@ async function sendMessage(channelId, message, userId) {
 }
 
 
-async function sendDM(userId, message) {
-  const conversation = await webClient.conversations.open({
-    users: userId,
-  })
+// async function sendDM(userId, message) {
+//   const conversation = await webClient.conversations.open({
+//     users: userId,
+//   })
 
-  await sendMessage(conversation.channel.id, message, userId)
-  console.log('conversation', conversation.channel.id)
-
-  return conversation.channel.id
+//   await sendMessage(conversation.channel.id, message, userId)
+//   return conversation.channel.id
+// }
+async function getDMHistory(channelId) {
+  console.log('channelId in slack.js!!', channelId)
+  try {
+    const result = await app.client.conversations.history({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: channelId,
+    });
+    console.log('result', result)
+    return result.messages
+  } catch (error) {
+    console.error(error)
+  }
 }
 
-export { app, getUserId, getChannelId, sendMessage, sendDM, webClient }
+async function sendDM(userId, message) {
+  try {
+    const result = await app.client.chat.postMessage({
+      token: process.env.SLACK_BOT_TOKEN,
+      channel: userId,
+      text: message,
+      as_user: true,
+    })
+    console.log('result', result)
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export { app, getUserId, getChannelId, sendMessage, sendDM, webClient, getDMHistory }
