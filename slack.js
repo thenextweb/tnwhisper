@@ -34,6 +34,7 @@ async function getChannelId(channelName) {
 
 
 async function sendMessage(channelId, message, userId) {
+  console.log('channelId, message, userId in sendMessage', channelId, message, userId)
   try {
     const result = await webClient.chat.postMessage({
       channel: channelId,
@@ -58,20 +59,22 @@ async function sendMessage(channelId, message, userId) {
 //   return conversation.channel.id
 // }
 async function getDMHistory(channelId) {
-  console.log('channelId in slack.js!!', channelId)
+  console.log('channelId in getDMHistory', channelId)
   try {
     const result = await app.client.conversations.history({
       token: process.env.SLACK_BOT_TOKEN,
       channel: channelId,
     });
-    console.log('result', result)
-    return result.messages
+    console.log('result getDMHistory', result)
+    const replies = result.messages.filter((message) => message.client_msg_id !== undefined).map((msg) => msg.text)
+    return replies
   } catch (error) {
     console.error(error)
   }
 }
 
 async function sendDM(userId, message) {
+  console.log('userId, message in sendDM', userId, message)
   try {
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
@@ -79,7 +82,7 @@ async function sendDM(userId, message) {
       text: message,
       as_user: true,
     })
-    console.log('result', result)
+    console.log('result sendDM', result)
     return result;
   } catch (error) {
     console.error(error);

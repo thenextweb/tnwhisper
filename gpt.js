@@ -3,7 +3,8 @@ import fetch from 'node-fetch'
 const apiKey = process.env.GPT_API_KEY
 
 async function sendToGPT(prompt) {
-  const url = 'https://api.openai.com/v1/engines/davinci-codex/completions'
+  console.log('prompt in sendToGPT', prompt)
+  const url = 'https://api.openai.com/v1/engines/davinci/completions'
 
   const response = await fetch(url, {
     method: 'POST',
@@ -21,6 +22,7 @@ async function sendToGPT(prompt) {
   })
 
   const data = await response.json()
+  console.log('data in sendToGPT', data.choices[0].text.trim())
   return data.choices[0].text.trim()
 }
 

@@ -21,46 +21,50 @@ async function scheduleQuestion() {
   const members = await webClient.conversations.members({ channel: ptOnlyChannelId })
 
   const questionDate = DateTime.local()
-  .set({ hour: parseInt(config.defaultTime.split(':')[0]), minute: parseInt(config.defaultTime.split(':')[1]) })
-  .setZone(config.defaultTimezone)
+    .set({ hour: parseInt(config.defaultTime.split(':')[0]), minute: parseInt(config.defaultTime.split(':')[1]) })
+    .setZone(config.defaultTimezone)
 
   schedule.scheduleJob(questionDate.toJSDate(), async () => {
     const responses = []
-
+    console.log('members.members', members.members)
     for (const userId of members.members) {
-      await sendDM(userId, config.defaultQuestion)
+      const dmConversation = await webClient.conversations.open({ users: userId })
+      const channelId = dmConversation.channel.id
+      console.log('channelId in scheduler.js', channelId)
+      const sendDmResult = await sendDM(userId, config.defaultQuestion)
+      console.log('sendDmResult scheduler.js', sendDmResult)
 
-      setTimeout(async() => {
-        console.log('userId in slack.js!!', userId)
-        const dmHistory = await getDMHistory(userId)
-        const responseMessage = dmHistory.messages.find(
-          (msg) => msg.text !== config.defaultQuestion
-        )
-        console.log('dmHistory', dmHistory)
-        console.log('responseMessage', responseMessage)
+      let messages = null
+      let foundResponse = false
 
-        if (responseMessage && responseMessage.text) {
-          responses.push(anonymizeMessage(responseMessage.text))
+      while (!foundResponse) {
+        messages = await getDMHistory(channelId)
+        console.log('messages in scheduler', messages)
+
+        // responseMessage = messages.find(
+        //   (msg) => msg.text !== config.defaultQuestion
+        // )
+        if (messages) {
+          foundResponse = true
         } else {
           console.log('No message found for user', userId)
+          // await new Promise(resolve => setTimeout(resolve, 10000))
         }
-        console.log('responses', responses)
-      }, config.defaultResponseTime * 60 * 1000)
+      }
+      messages.map(msg => responses.push(anonymizeMessage(msg))
+      )
+      console.log('responses', responses)
+    
+
+    const prompt = `Summarize the following anonymous employee feedback:\n\n${responses.join(
+      '\n'
+    )}\n\nPlease provide a concise yet complete summary of the team's overall mood and a score from 1 to 10.`
+
+    const summary = await sendToGPT(prompt)
+    console.log('summary of GPT', summary)
+    await sendMessage(ptLeadsChannelId, summary)
     }
-
-    // RE-ENABLE THIS BELOW ONCE THE ABOVE DOESN'T THROW ERRORS ANYMORE
-
-    // setTimeout(async () => {
-    //   const prompt = `Summarize the following anonymous employee feedback:\n\n${responses.join(
-    //     '\n'
-    //   )}\n\nPlease provide a concise yet complete summary of the team's overall mood and a score from 1 to 10.`
-
-    //   const summary = await sendToGPT(prompt)
-    //   await sendMessage(ptLeadsChannelId, summary)
-    // }, (config.defaultResponseTime + 1) * 60 * 1000)
   })
 }
 
-
 export { scheduleQuestion }
-
