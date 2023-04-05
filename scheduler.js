@@ -54,12 +54,12 @@ async function scheduleQuestion() {
       messages.map(msg => responses.push(anonymizeMessage(msg))
       )
       console.log('responses', responses)
-    
+    console.log('prompt')
 
-    const prompt = `Summarize the following anonymous employee feedback:\n\n${responses.join(
+    const prompt = `The following is a list of answers from different employees to the question "${config.defaultQuestion}".
+    \n\n${responses.join(
       '\n'
-    )}\n\nPlease provide a concise yet complete summary of the team's overall mood and a score from 1 to 10.`
-
+    )}\n\nYour reply should be a single concise yet complete summary of all these answers, your goal is to give a summary of the team's overall mood, and finish your response giving a score from 1 to 10 (where 1 means that overall people are not feeling good or positive at all, while 10 means that people are feeling very good or positive). Make sure to anonymize any personal name that is mentioned, replacing it with the literal text "employee_name". This is ESSENTIAL.`
     const summary = await sendToGPT(prompt)
     console.log('summary of GPT', summary)
     await sendMessage(ptLeadsChannelId, summary)
