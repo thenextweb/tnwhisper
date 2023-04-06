@@ -17,7 +17,7 @@ async function sendToGPT(prompt) {
       // n: 1,
       stop: null,
       model: 'text-davinci-003',
-      max_tokens: 150,
+      max_tokens: 350,
       top_p: 0.3,
       frequency_penalty: 0.5,
       presence_penalty: 0.0,
