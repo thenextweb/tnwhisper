@@ -4,7 +4,7 @@ const config = {
   ptOnlyChannel: 'irene-testing',
   // ptOnlyChannel: 'pt-only',
   defaultQuestion: 'How have you been lately?',
-  defaultTime: '13:54',
+  defaultTime: '10:18',
   defaultTimezone: 'Europe/Amsterdam',
   // defaultFrequency: 'lastThursday',
   defaultResponseTime: 1,

@@ -34,14 +34,13 @@ async function getChannelId(channelName) {
 
 
 async function sendMessage(channelId, message, userId) {
-  console.log('channelId, message, userId in sendMessage', channelId, message, userId)
   try {
     const result = await webClient.chat.postMessage({
       channel: channelId,
       text: message,
       as_user: true,
       user: userId
-    });
+    })
     console.log(`Message sent: ${JSON.stringify(result)}`)
     return result
   } catch (error) {
@@ -49,44 +48,85 @@ async function sendMessage(channelId, message, userId) {
   }
 }
 
-
-// async function sendDM(userId, message) {
-//   const conversation = await webClient.conversations.open({
-//     users: userId,
-//   })
-
-//   await sendMessage(conversation.channel.id, message, userId)
-//   return conversation.channel.id
-// }
-async function getDMHistory(channelId) {
-  console.log('channelId in getDMHistory', channelId)
+async function getDMHistory(channelId, botUserId) {
   try {
     const result = await app.client.conversations.history({
       token: process.env.SLACK_BOT_TOKEN,
       channel: channelId,
-    });
-    console.log('result getDMHistory', result)
-    const replies = result.messages.filter((message) => message.client_msg_id !== undefined).map((msg) => msg.text)
-    return replies
+    })
+    const replies = result.messages
+    .filter((message) => message.user !== botUserId)
+    .map((msg) => msg.text)
+    console.log('replies[0]', replies[0])
+  return replies[0]
   } catch (error) {
     console.error(error)
   }
 }
 
 async function sendDM(userId, message) {
-  console.log('userId, message in sendDM', userId, message)
   try {
     const result = await app.client.chat.postMessage({
       token: process.env.SLACK_BOT_TOKEN,
       channel: userId,
-      text: message,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: message,
+          },
+          accessory: {
+            type: "button",
+            text: {
+              type: "plain_text",
+              text: "End Conversation",
+            },
+            value: "end_conversation",
+            action_id: "end_conversation",
+          },
+        },
+      ],
       as_user: true,
     })
-    console.log('result sendDM', result)
-    return result;
+    return result
   } catch (error) {
-    console.error(error);
+    console.error(error)
   }
 }
+async function getBotUserId() {
+  const authResult = await webClient.auth.test();
+  return authResult.user_id;
+}
 
-export { app, getUserId, getChannelId, sendMessage, sendDM, webClient, getDMHistory }
+app.action("end_conversation", async ({ ack, body, client }) => {
+  try {
+    // Acknowledge the button click
+    await ack()
+
+    // Get the user's response from the conversation
+    const channelId = body.channel.id
+    const messages = await getDMHistory(channelId)
+
+    // Handle the user's response
+    // Process the response using GPT as needed
+
+    // Send a response message
+    await client.chat.postMessage({
+      channel: channelId,
+      text: "Thanks for your feedback!",
+    })
+
+    // Close the conversation
+    await client.chat.update({
+      channel: channelId,
+      ts: body.message.ts,
+      blocks: [],
+      text: "This conversation has ended.",
+    })
+  } catch (error) {
+    console.error(error)
+  }
+})
+
+export { app, getUserId, getChannelId, sendMessage, sendDM, webClient, getDMHistory, getBotUserId }

@@ -26,7 +26,7 @@ async function sendToGPT(prompt) {
   })
 
   const data = await response.json()
-  console.log('data in sendToGPT', data)
+  console.log('Response from GPT', data)
   return data.choices[0].text.trim()
 }
 
