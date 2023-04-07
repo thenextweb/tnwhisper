@@ -52,7 +52,6 @@ async function scheduleQuestion() {
       return new Promise(async (resolve) => {
         setTimeout(async () => {
           if (!userResponses.has(userId)) {
-            // Pass the botMessageTimestamp to the getDMHistory function
             const messages = await getDMHistory(channelId, botUserId, botMessageTimestamp)
             resolve(messages)
           } else {
@@ -67,16 +66,20 @@ async function scheduleQuestion() {
 
     const prompt = `The following is a list of answers from different employees to the question "${config.defaultQuestion}".
       \n\n${responses.join(
-        '\n\n'
-      )}\n\nYour reply should be a single complete summary of all these answers, 
-      your goal is to give a summary of the team's overall mood, and finish your response giving 
+        '\n'
+      )}\n\nYour reply should be a single complete summary of all these answers. 
+      Your goal is to give a complete summary of the team's overall mood, summarize the
+      employees mood in the best and most complete way as possible, and finish your response giving 
       a score from 1 to 10 (where 1 means that overall people are not feeling good or positive at all, 
       while 10 means that people are feeling very good or positive). 
       Make sure to anonymize any personal name that is mentioned. 
-      You also need to anonymize any colleague or team-member name
-      that is mentioned anywhere in the prompt. Anonymization of all names is ESSENTIAL.`
+      You also need to anonymize any colleague or team-member name or surname
+      that is mentioned anywhere in the prompt. Some people 
+      might have names or surnames that sound like existing words or objects (for example the name 'olive'), plus sometimes
+      people write personal names without capitalizing the first letter, so make
+      sure not to get tricked by this, you need to anonymize all these personal names as well! 
+      Anonymization of ALL personal names is ESSENTIAL.`
     const summary = await sendToGPT(prompt)
-    console.log('summary of GPT', summary)
     await sendMessage(ptLeadsChannelId, summary)
   })
 }

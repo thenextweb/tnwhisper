@@ -72,7 +72,7 @@ async function sendDM(userId, message) {
       ],
       as_user: true,
     })
-    return result.ts; // Return the timestamp of the message
+    return result.ts // Return the timestamp of the message
   } catch (error) {
     console.error(error)
   }
