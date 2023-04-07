@@ -1,12 +1,11 @@
 const config = {
-  ptLeadsChannel: 'irene-testing',
-  // ptLeadsChannel: 'pt-leads',
-  ptOnlyChannel: 'irene-testing',
-  // ptOnlyChannel: 'pt-only',
+  ptLeadsChannel: 'pt-leads',
+  ptOnlyChannel: 'pt-only',
   defaultQuestion: 'How have you been lately?',
-  defaultTime: '13:41',
+  defaultTime: '12:00',
   defaultTimezone: 'Europe/Amsterdam',
-  // defaultFrequency: 'lastThursday',
+  // defaultFrequency is not in use yet, the code to handle the frequency still needs to be implemented
+  defaultFrequency: 'lastThursday',
   defaultResponseTime: 1,
 }
 export default config
