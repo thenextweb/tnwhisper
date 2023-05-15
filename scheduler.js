@@ -5,16 +5,16 @@ import { getChannelId, getBotUserId, sendMessage, sendDM, app, webClient, getDMH
 import { sendToGPT } from './gpt.js'
 
 async function scheduleQuestion() {
-  const ptOnlyChannelId = await getChannelId(config.ptOnlyChannel)
-  const ptLeadsChannelId = await getChannelId(config.ptLeadsChannel)
+  const finalSummaryChannelId = await getChannelId(config.finalSummaryChannel)
+  const questionRecipientsChannelId = await getChannelId(config.questionRecipientsChannel)
 
-  if (!ptOnlyChannelId) {
-    console.error("ptOnlyChannel not found")
+  if (!finalSummaryChannelId) {
+    console.error("finalSummaryChannel not found")
     return
   }
 
   const members = await webClient.conversations.members({
-    channel: ptOnlyChannelId,
+    channel: finalSummaryChannelId,
   })
 
   const questionDate = DateTime.local()
@@ -57,12 +57,11 @@ async function scheduleQuestion() {
           } else {
             resolve(userResponses.get(userId))
           }
-        }, 60000) // wait for 60 seconds
+        }, config.defaultResponseTime) // wait for 60 seconds
       })
     })
 
     const responses = await Promise.all(responsePromises)
-    console.log("responses pre-prompt", responses)
 
     const prompt = `The following is a list of answers from different employees to the question "${config.defaultQuestion}".
       \n\n${responses.join(
@@ -80,7 +79,7 @@ async function scheduleQuestion() {
       sure not to get tricked by this, you need to anonymize all these personal names as well! 
       Anonymization of ALL personal names is ESSENTIAL.`
     const summary = await sendToGPT(prompt)
-    await sendMessage(ptLeadsChannelId, summary)
+    await sendMessage(questionRecipientsChannelId, summary)
   })
 }
 

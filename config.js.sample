@@ -1,0 +1,10 @@
+const config = {
+  questionRecipientsChannel: 'name-of-channel', // send the question as a DM to everyone in this channel (as a direct chat between the bot and the user)
+  finalSummaryChannel: 'name-of-channel', // send the final GPT summary to this channel (everyone in the channel will be able to see it)
+  defaultQuestion: 'E.g.: How have you been lately?', // question that will be sent to the users
+  defaultTime: '12:00', // time when the question will be sent
+  defaultTimezone: 'Europe/Amsterdam',
+  defaultResponseTime: 60000, // time that the bot will wait before collecting the answers from the users (in milliseconds) and sending them to GPT. 
+  defaultFrequency: 'lastThursday', // defaultFrequency is not in use yet
+}
+export default config
