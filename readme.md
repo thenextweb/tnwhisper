@@ -7,4 +7,6 @@
 ## Setup
 Copy the content of `config.js.sample` into a separate `config.js` file, in the root of the project. Add your own channel names and settings.
 
+You'll also have to duplicate the .env.sample file, and add your own Slack tokens and GPT API key.
+
 Initiate the project with `npm install`, then run it with `npm start`. 
